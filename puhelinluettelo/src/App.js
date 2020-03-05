@@ -3,12 +3,15 @@ import Filter from "./components/Filter";
 import PersonsForm from "./components/PersonForm";
 import Persons from "./components/Persons";
 import personService from "./services/persons";
+import Notification from "./components/Notification";
 
 const App = () => {
   const [persons, setPersons] = useState([]);
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState("");
   const [filter, setNewFilter] = useState("");
+  const [msg, setMsg] = useState("");
+  const [msgStyle, setMsgStyle] = useState("");
 
   useEffect(() => {
     personService.getAll().then(response => {
@@ -23,6 +26,12 @@ const App = () => {
       personService.create(obj).then(response => {
         personService.getAll().then(response => {
           setPersons(response.data);
+          setMsg(`Added ${newName}`);
+          setMsgStyle("add");
+          setTimeout(() => {
+            setMsg(null);
+            setMsgStyle(null);
+          }, 5000);
           setNewName("");
           setNewNumber("");
         });
@@ -38,6 +47,12 @@ const App = () => {
         personService.update(i.id, i).then(() => {
           personService.getAll().then(response => {
             setPersons(response.data);
+            setMsg(`Updated ${newName}`);
+            setMsgStyle("update");
+            setTimeout(() => {
+              setMsg(null);
+              setMsgStyle(null);
+            }, 5000);
             setNewName("");
             setNewNumber("");
           });
@@ -61,6 +76,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={msg} style={msgStyle} />
       <Filter filter={filter} handleFilterChange={handleFilterChange} />
       <h2>add a new</h2>
       <PersonsForm
@@ -76,6 +92,8 @@ const App = () => {
         filter={filter}
         personService={personService}
         setPersons={setPersons}
+        setMsg={setMsg}
+        setMsgStyle={setMsgStyle}
       ></Persons>
     </div>
   );

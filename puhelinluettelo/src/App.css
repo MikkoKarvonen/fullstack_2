@@ -1,0 +1,16 @@
+.add {
+  color: green;
+}
+
+.update {
+  color: teal;
+}
+
+.del {
+  color: tomato;
+}
+
+.err {
+  color: red;
+  text-decoration: underline;
+}

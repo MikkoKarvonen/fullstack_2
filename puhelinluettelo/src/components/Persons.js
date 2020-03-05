@@ -1,13 +1,31 @@
 import React from "react";
 
-const Persons = ({ persons, filter, personService, setPersons }) => {
+const Persons = ({
+  persons,
+  filter,
+  personService,
+  setPersons,
+  setMsg,
+  setMsgStyle
+}) => {
   const handleDelete = e => {
     if (window.confirm(`Delete ${e.name}?`)) {
-      personService.del(e.id);
-      let filtered = persons.filter(el => {
-        return el.id !== e.id;
+      personService.del(e.id).then(res => {
+        personService.getAll().then(response => {
+          setPersons(response.data);
+          if (res) {
+            setMsg(`Removed ${e.name}`);
+            setMsgStyle("del");
+          } else {
+            setMsg(`${e.name} was already removed`);
+            setMsgStyle("err");
+          }
+          setTimeout(() => {
+            setMsg(null);
+            setMsgStyle(null);
+          }, 5000);
+        });
       });
-      setPersons(filtered);
     }
   };
 

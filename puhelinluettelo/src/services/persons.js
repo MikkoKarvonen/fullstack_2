@@ -10,7 +10,14 @@ const create = newObject => {
 };
 
 const del = id => {
-  return axios.delete(`${baseUrl}/${id}`);
+  return axios
+    .delete(`${baseUrl}/${id}`)
+    .then(response => {
+      return true;
+    })
+    .catch(error => {
+      return false;
+    });
 };
 
 const update = (id, newObject) => {
