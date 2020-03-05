@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import Filter from "./components/Filter";
 import PersonsForm from "./components/PersonForm";
 import Persons from "./components/Persons";
+import personService from "./services/persons";
 
 const App = () => {
   const [persons, setPersons] = useState([]);
@@ -11,22 +11,38 @@ const App = () => {
   const [filter, setNewFilter] = useState("");
 
   useEffect(() => {
-    console.log("effect");
-    axios.get("http://localhost:3001/persons").then(response => {
-      console.log("promise fulfilled");
+    personService.getAll().then(response => {
       setPersons(response.data);
     });
   }, []);
-  console.log("render", persons.length, "notes");
 
   const addNumber = event => {
     event.preventDefault();
     if (!persons.some(e => e.name === newName)) {
-      setPersons(persons.concat({ name: newName, number: newNumber }));
-      setNewName("");
-      setNewNumber("");
+      const obj = { name: newName, number: newNumber };
+      personService.create(obj).then(response => {
+        personService.getAll().then(response => {
+          setPersons(response.data);
+          setNewName("");
+          setNewNumber("");
+        });
+      });
     } else {
-      alert(`${newName} is already added to phonebook`);
+      if (
+        window.confirm(
+          `${newName} is already added to phonebook, replace the old number with a new one?`
+        )
+      ) {
+        const i = persons.find(x => x.name === newName);
+        i.number = newNumber;
+        personService.update(i.id, i).then(() => {
+          personService.getAll().then(response => {
+            setPersons(response.data);
+            setNewName("");
+            setNewNumber("");
+          });
+        });
+      }
     }
   };
 
@@ -55,7 +71,12 @@ const App = () => {
         handleNumberChange={handleNumberChange}
       />
       <h2>Numbers</h2>
-      <Persons persons={persons} filter={filter}></Persons>
+      <Persons
+        persons={persons}
+        filter={filter}
+        personService={personService}
+        setPersons={setPersons}
+      ></Persons>
     </div>
   );
 };
